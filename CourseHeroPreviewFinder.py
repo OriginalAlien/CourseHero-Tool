@@ -24,7 +24,7 @@ def getPages(url):
                 break
         dataRsid = html[dataRsidIndex1+10:dataRsidIndex2]
     else:
-        print("Couldn't Successfully Get The Page's Data RSID. Line #13")
+        print("Couldn't Successfully Get The Page's Data RSID. Line #18")
 
 
     #get filehash
@@ -37,7 +37,7 @@ def getPages(url):
                 break
         filehash = html[filehashIndex1+15:filehashIndex2]
     else:
-        print("Couldn't Successfully Get The Page's File Hash. Line #26")
+        print("Couldn't Successfully Get The Page's File Hash. Line #31")
     
     #get pageAmount
     if "<label>Pages</label>" in html:
@@ -49,7 +49,7 @@ def getPages(url):
                 break
         pageAmount = html[pageAmountIndex1+38:pageAmountIndex2]
     else:
-        print("Couldn't Successfully Get Page's Page Amount. Line #38")
+        print("Couldn't Successfully Get Page's Page Amount. Line #43")
     try:
         print(f"File Info:\n    Data-RSID: {dataRsid}\n    File-Hash: {filehash}\n    Page-Amount: {pageAmount}\n")
     except:
