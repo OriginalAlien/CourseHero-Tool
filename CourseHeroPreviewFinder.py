@@ -100,9 +100,9 @@ def getPages(url):
             requestStatus = requests.get(examineURL, headers=header, proxies=proxy)
         except:
             time.sleep(2)
-            requestStatus = requests.get(examineURL, headers=header)
             header = {"User-Agent": f'{str(random.choices(headersList))}'}
             proxy = {"http": str(random.choice(proxiesList))}
+            requestStatus = requests.get(examineURL, headers=header)
 
         if requestStatus.ok:
             print(f"\nValid Preview: {examineURL} ({validLinks}/{len(generatedPageList)})")
