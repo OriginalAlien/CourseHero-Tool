@@ -14,3 +14,4 @@ Preview:
 ___________________________
 
 Contact Dreamer#5114 On Discord for help.
+(Using An VPN Can Slow Down The Process.)
