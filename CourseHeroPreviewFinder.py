@@ -8,12 +8,20 @@ def getPages(url):
     proxiesList = open("proxies.txt").read().splitlines()
     proxy = {"http": str(random.choice(proxiesList))}
 
-    html = requests.get(url, headers=header, proxies=proxy)
+    print("\nGetting HTML...\n")
+    try:
+        html = requests.get(url, headers=header, proxies=proxy)
+    except Exception as HTMLGetError:
+        print(HTMLGetError)
+        input("Enter To Exit")
+        exit()
+
     html = str(html.content)
     print(f"\nUsing Proxy {proxy}...")
     print(f"\nUsing User-Agent {header}...\n")
 
-    print("\n\nGetting File Info...\n")
+    print("Getting File Info...\n")
+
     #get dataRsid
     if "data-rsid=" in html:
         dataRsidIndex1 = html.find("data-rsid=")
@@ -23,8 +31,10 @@ def getPages(url):
             if html[dataRsidIndex2] == ">":
                 break
         dataRsid = html[dataRsidIndex1+10:dataRsidIndex2]
+        dataRsidGot = True
     else:
-        print("Couldn't Successfully Get The Page's Data RSID. Line #18")
+        dataRsidGot = False
+        print("Couldn't Successfully Get The Page's Data RSID. Line #13\n")
 
 
     #get filehash
@@ -36,8 +46,10 @@ def getPages(url):
             if html[filehashIndex2] == "\"":
                 break
         filehash = html[filehashIndex1+15:filehashIndex2]
+        filehashGot = True
     else:
-        print("Couldn't Successfully Get The Page's File Hash. Line #31")
+        filehashGot = False
+        print("Couldn't Successfully Get The Page's File Hash. Line #26\n")
     
     #get pageAmount
     if "<label>Pages</label>" in html:
@@ -48,58 +60,155 @@ def getPages(url):
             if html[pageAmountIndex2] == "\\":
                 break
         pageAmount = html[pageAmountIndex1+38:pageAmountIndex2]
+        pageAmountgot = True
     else:
-        print("Couldn't Successfully Get Page's Page Amount. Line #43")
+        pageAmountgot = False
+        print("Couldn't Successfully Get Page's Page Amount. Line #38\n")
+
     try:
         print(f"File Info:\n    Data-RSID: {dataRsid}\n    File-Hash: {filehash}\n    Page-Amount: {pageAmount}\n")
     except:
-        print("\nCouldn't Get HTML Successfully, Solutions: Connect To A VPN To Change Your IP And Retry.\nOr Update Your HTTP Proxies and User-Agents.")
-        input()
-        exit()
+        if dataRsidGot == False:
+            print("Couldn't Get Data-RSID, Most Likely It's Still Valid.")
+        
+        elif pageAmountgot and filehashGot == False:
+            print("\nCouldn't Get HTML Successfully, Solutions: Connect To A VPN To Change Your IP And Retry.\nOr Update Your HTTP Proxies and User-Agents.")
+            input("\nPress Enter To Exit.")
+            exit()
+
 
     print("\nGetting Possible Preview Links...\n")
 
     generatedPageList = []
-
-    validLinks = 1
+    validLinks = 0
     page = 0
+    pageUrlbegin1 = f"https://www.coursehero.com/doc-asset/bg/{filehash}/splits/v9.2/"
+    pageUrlbegin2 = f"https://www.coursehero.com/doc-asset/bg/{filehash}/splits/v9/"
+    #generating possible links
 
-    pageUrlbegin = f"https://www.coursehero.com/doc-asset/bg/{filehash}/splits/{dataRsid}/"
-
-    generatedPageList.append(pageUrlbegin + f"split-{page+0}-page-{page}.jpg")
-    generatedPageList.append(pageUrlbegin + f"split-{page+1}-page-{page}.jpg")
-    generatedPageList.append(pageUrlbegin + f"split-{page+2}-page-{page}.jpg")
-    page += 1
-    generatedPageList.append(pageUrlbegin + f"split-{page-1}-page-{page}.jpg")
-    generatedPageList.append(pageUrlbegin + f"split-{page+0}-page-{page}.jpg")
-    generatedPageList.append(pageUrlbegin + f"split-{page+1}-page-{page}.jpg")
-    generatedPageList.append(pageUrlbegin + f"split-{page+2}-page-{page}.jpg")
-    page += 1
-    generatedPageList.append(pageUrlbegin + f"split-{page-1}-page-{page}.jpg")
-    generatedPageList.append(pageUrlbegin + f"split-{page-2}-page-{page}.jpg")
-    generatedPageList.append(pageUrlbegin + f"split-{page+0}-page-{page}.jpg")
-    generatedPageList.append(pageUrlbegin + f"split-{page+1}-page-{page}.jpg")
-    generatedPageList.append(pageUrlbegin + f"split-{page+2}-page-{page}.jpg")
-    page += 1
-    #generating possible extra previews
-    while int(page) < int(pageAmount):
+    if dataRsidGot == True: #If the given file does have an actual data rsid
+        pageUrlbegin = f"https://www.coursehero.com/doc-asset/bg/{filehash}/splits/{dataRsid}/"
         page += 1
         generatedPageList.append(pageUrlbegin + f"split-{page-1}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin + f"split-{page-2}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin1 + f"split-{page-1}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page-1}-page-{page}.jpg")
+
+        generatedPageList.append(pageUrlbegin1 + f"split-{page-1}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page-1}-page-{page}.jpg")
+
         generatedPageList.append(pageUrlbegin + f"split-{page+0}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin1 + f"split-{page+0}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page+0}-page-{page}.jpg")
+
         generatedPageList.append(pageUrlbegin + f"split-{page+1}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin1 + f"split-{page+1}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page+1}-page-{page}.jpg")
+
         generatedPageList.append(pageUrlbegin + f"split-{page+2}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin1 + f"split-{page+2}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page+2}-page-{page}.jpg")
+
+        page += 1
+        generatedPageList.append(pageUrlbegin + f"split-{page-1}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin1 + f"split-{page-1}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page-1}-page-{page}.jpg")
+        
+        generatedPageList.append(pageUrlbegin + f"split-{page-2}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin1 + f"split-{page-2}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page-2}-page-{page}.jpg")
+
+        generatedPageList.append(pageUrlbegin + f"split-{page+0}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin1 + f"split-{page+0}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page+0}-page-{page}.jpg")
+
+        generatedPageList.append(pageUrlbegin + f"split-{page+1}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin1 + f"split-{page+1}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page+1}-page-{page}.jpg")
+
+        generatedPageList.append(pageUrlbegin + f"split-{page+2}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin1 + f"split-{page+2}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page+2}-page-{page}.jpg")
+        while int(page) < int(pageAmount):
+            page += 1
+            generatedPageList.append(pageUrlbegin + f"split-{page-1}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin1 + f"split-{page-1}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-{page-1}-page-{page}.jpg")
+
+            generatedPageList.append(pageUrlbegin + f"split-{page-2}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin1 + f"split-{page-2}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-{page-2}-page-{page}.jpg")
+
+            generatedPageList.append(pageUrlbegin + f"split-{page+0}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin1 + f"split-{page+0}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-{page+0}-page-{page}.jpg")
+
+            generatedPageList.append(pageUrlbegin + f"split-{page+1}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin1 + f"split-{page+1}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-{page+1}-page-{page}.jpg")
+
+            generatedPageList.append(pageUrlbegin + f"split-{page+2}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin1 + f"split-{page+2}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-{page+2}-page-{page}.jpg")
+
+    elif dataRsidGot == False: #If the given file doesn't have an actual Data-RSID...
+        page += 1
+        generatedPageList.append(pageUrlbegin1 + f"split-{page-1}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page-1}-page-{page}.jpg")
+
+        generatedPageList.append(pageUrlbegin1 + f"split-{page-1}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page-1}-page-{page}.jpg")
+
+        generatedPageList.append(pageUrlbegin1 + f"split-{page+0}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page+0}-page-{page}.jpg")
+
+        generatedPageList.append(pageUrlbegin1 + f"split-{page+1}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page+1}-page-{page}.jpg")
+
+        generatedPageList.append(pageUrlbegin1 + f"split-{page+2}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page+2}-page-{page}.jpg")
+
+        page += 1
+        generatedPageList.append(pageUrlbegin1 + f"split-{page-1}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page-1}-page-{page}.jpg")
+        
+        generatedPageList.append(pageUrlbegin1 + f"split-{page-2}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page-2}-page-{page}.jpg")
+
+        generatedPageList.append(pageUrlbegin1 + f"split-{page+0}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page+0}-page-{page}.jpg")
+
+        generatedPageList.append(pageUrlbegin1 + f"split-{page+1}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page+1}-page-{page}.jpg")
+
+        generatedPageList.append(pageUrlbegin1 + f"split-{page+2}-page-{page}.jpg")
+        generatedPageList.append(pageUrlbegin2 + f"split-{page+2}-page-{page}.jpg")
+        #generating possible extra previews
+        while int(page) < int(pageAmount):
+            page += 1
+            generatedPageList.append(pageUrlbegin1 + f"split-{page-1}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-{page-1}-page-{page}.jpg")
+
+            generatedPageList.append(pageUrlbegin1 + f"split-{page-2}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-{page-2}-page-{page}.jpg")
+
+            generatedPageList.append(pageUrlbegin1 + f"split-{page+0}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-{page+0}-page-{page}.jpg")
+
+            generatedPageList.append(pageUrlbegin1 + f"split-{page+1}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-{page+1}-page-{page}.jpg")
+
+            generatedPageList.append(pageUrlbegin1 + f"split-{page+2}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-{page+2}-page-{page}.jpg")
+
 
     print(f"Generated {len(generatedPageList)} Possible Links, And {page} Pages\nTesting {len(generatedPageList)} Links...\n\nNote: This Can Take A Long Time If It Has Lots Of Pages.\n")
     #checking if the generated possible previews are valid or not
     for examineURL in generatedPageList:
         try:
-            time.sleep(2)
             header = {"User-Agent": f'{str(random.choices(headersList))}'}
             proxy = {"http": str(random.choice(proxiesList))}
             requestStatus = requests.get(examineURL, headers=header, proxies=proxy)
         except:
-            time.sleep(2)
             header = {"User-Agent": f'{str(random.choices(headersList))}'}
             proxy = {"http": str(random.choice(proxiesList))}
             requestStatus = requests.get(examineURL, headers=header)
@@ -107,8 +216,8 @@ def getPages(url):
         if requestStatus.ok:
             print(f"\nValid Preview: {examineURL} ({validLinks}/{len(generatedPageList)})")
             validLinks += 1
-        
-        time.sleep(random.randint(1,3))
+        else:
+            print(f"\nInvalid Link. ({examineURL})")
     
     #prints it out
     print(f"\n\nGenerated {len(generatedPageList)} Links, Only {validLinks} Were Valid\n")
