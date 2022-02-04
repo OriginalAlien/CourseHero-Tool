@@ -1,5 +1,5 @@
 # CourseHero-Tool
-A Program That Finds All Possible Course Hero Available Previews.\ !!I'm Planning To Update This Frequently Until It Works Flawlessly.!!\EDUCATIONAL PURPOSE ONLY
+A Program That Finds All Possible Course Hero Available Previews.\ !!I'm Planning To Update This Frequently Until It Works Flawlessly.!!\ Update: Fixed A Bug Where It Can't Get The Data RSID For Files That Uses v9.2 or v9 As The Data RSID.
 __________________________
 For the course hero preview finder, make sure you use a VPN, update proxies (HTTP Proxies) frequently, update user agents frequently in the txt files.\
 
