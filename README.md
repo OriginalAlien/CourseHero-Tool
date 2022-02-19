@@ -1,4 +1,4 @@
-# CourseHero-Tool
+# CourseHero-Tool (UPDATED)
 A Program That Finds All Possible Course Hero Available Previews.\
 Update: Uses Chrome Driver Now Instead Of Requests Since Requests Isn't Good With It.
 __________________________
