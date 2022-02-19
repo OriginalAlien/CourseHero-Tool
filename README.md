@@ -1,5 +1,6 @@
 # CourseHero-Tool
-A Program That Finds All Possible Course Hero Available Previews.\ !!I'm Planning To Update This Frequently Until It Works Flawlessly.!!\ Update: Uses Chrome Driver Now Instead Of Requests Since Requests Isn't Good With It.
+A Program That Finds All Possible Course Hero Available Previews.\ !!I'm Planning To Update This Frequently Until It Works Flawlessly.!!
+ \ Update: Uses Chrome Driver Now Instead Of Requests Since Requests Isn't Good With It.
 __________________________
 
 For the course hero preview finder, make sure you use a VPN, update proxies (HTTP Proxies) frequently, update user agents frequently in the txt files.\
