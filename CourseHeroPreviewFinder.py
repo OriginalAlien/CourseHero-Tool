@@ -1,250 +1,232 @@
-import requests, random, time #gig
-#RECOMMEND TO USE VPN
-#READ BEFORE USING: I recommend to add more user agents in useragents.txt so more easy requests, get free ones at https://developers.whatismybrowser.com/useragents/explore/operating_system_name/windows/
-def getPages(url):
+from selenium import webdriver
+from colorama import Fore, init
+import time, os
+init()
+os.system("mode 800")
 
-    headersList = open("useragents.txt").read().splitlines()
-    header = {"User-Agent": str(random.choice(headersList))}
-    proxiesList = open("proxies.txt").read().splitlines()
-    proxy = {"http": str(random.choice(proxiesList))}
+os.system("title Course Hero Tool -By Dreamer#5114")
+def getPreviews(url):
+    option = webdriver.ChromeOptions()
+    option.add_experimental_option('excludeSwitches', ['enable-logging'])
 
-    print("\nGetting HTML...\n")
     try:
-        html = requests.get(url, headers=header, proxies=proxy)
-    except Exception as HTMLGetError:
-        print(HTMLGetError)
-        input("Enter To Exit")
+        driver = webdriver.Chrome("Path Here, Example: C:\\Users\\USER\\OneDrive\\Desktop\\chromedriver\\chromedriver.exe", options=option) #Put chromedriver.exe file loction between quotation marks using double back slashes.
+    except Exception as DriverError:
+        print(f"\n{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}Invalid File Location For Chrome Driver Or File Location Hasn't Been Set Yet. Remember To Use Double Slashes. Make Sure Chrome Driver Is Same Version As Chrome\n    Line: 11\n    Stopped Program.\n")
+        print(f"{Fore.RED}{DriverError}{Fore.RESET}\n")
+        input(f"\n{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}Press Enter To Exit")
         exit()
 
-    html = str(html.content)
-    print(f"\nUsing Proxy {proxy}...")
-    print(f"\nUsing User-Agent {header}...\n")
+    print(f"\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Getting Link's HTML...")
+    try:
+        driver.get(url)
+    except:
+        print(f"{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] Invalid Course Hero URL.")
+        input("Press Enter To Exit...")
+        exit()
+    time.sleep(4)
+    html = driver.page_source
 
-    print("Getting File Info...\n")
+    if ">Request unsuccessful." in html:
+        print(f"\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] A Captcha Was Given\n")
+        while True:
+            print(f"{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Please Solve The Captcha. Type \"y\" Once You Did")
+            captcha_solved = input(f"{Fore.WHITE}[{Fore.CYAN}>>>{Fore.WHITE}] ")
+            if captcha_solved == "y":
+                html = driver.page_source
+                if ">Request unsuccessful." not in html:
+                    print(f"\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Successfully Got The HTML!")
+                    break
+                else:
+                    print(f"\n{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] Failed To Get The Page's HTML, Try Solving It Again.\n")
 
-    #get dataRsid
-    if "data-rsid=" in html:
-        dataRsidIndex1 = html.find("data-rsid=")
-        dataRsidIndex2 = dataRsidIndex1 + 10
-        while 1 == 1:
-            dataRsidIndex2 += 1
-            if html[dataRsidIndex2] == ">":
-                break
-        dataRsid = html[dataRsidIndex1+10:dataRsidIndex2]
-        dataRsidGot = True
+    Link1 = html.find('url(/doc-asset/bg')
+    Link2 = Link1
+    print(html[Link1:Link2])
+    while 1 == 1:
+        Link2 += 1
+        if html[Link2] == ")":
+            break
+
+    endLink = html[Link1:Link2]
+    endLink = endLink.replace("background-image:", "")
+    endLink = endLink.replace("url(", "")
+    endLink = endLink.replace("-html-bg", "")
+    endLink = endLink.replace(" ", "")
+    endLink = endLink.replace(endLink[endLink.find("split-")::], "")
+
+    dataRsidIndex1 = endLink.find('splits/')
+    dataRsidIndex2 = dataRsidIndex1 + 7
+
+    while 1 == 1:
+        dataRsidIndex2 += 1
+        if endLink[dataRsidIndex2] == "/":
+            break
+
+    dataRSID = endLink[dataRsidIndex1+7:dataRsidIndex2]
+
+    if "v9" in endLink:
+        numberDataRsid = False
     else:
-        dataRsidGot = False
-        print("Couldn't Successfully Get The Page's Data RSID. Line #13\n")
+        numberDataRsid = True
 
-
-    #get filehash
-    if "filehash" in html:
-        filehashIndex1 = html.find("data-filehash=\"")
-        filehashIndex2 = filehashIndex1 + 15
-        while 1 == 1:
-            filehashIndex2 += 1
-            if html[filehashIndex2] == "\"":
-                break
-        filehash = html[filehashIndex1+15:filehashIndex2]
-        filehashGot = True
-    else:
-        filehashGot = False
-        print("Couldn't Successfully Get The Page's File Hash. Line #26\n")
-    
     #get pageAmount
     if "<label>Pages</label>" in html:
         pageAmountIndex1 = html.find("<label>Pages</label>")
-        pageAmountIndex2 = pageAmountIndex1 + 38 #38
+        pageAmountIndex2 = pageAmountIndex1 + 25 #38
         while 1 == 1:
             pageAmountIndex2 += 1
-            if html[pageAmountIndex2] == "\\":
+            if html[pageAmountIndex2] == "<":
                 break
-        pageAmount = html[pageAmountIndex1+38:pageAmountIndex2]
+        pageAmount = int(html[pageAmountIndex1+25:pageAmountIndex2])
         pageAmountgot = True
     else:
         pageAmountgot = False
-        print("Couldn't Successfully Get Page's Page Amount. Line #38\n")
+        print(f"{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Couldn't Successfully Get Page's Page Amount.\n")
 
-    try:
-        print(f"File Info:\n    Data-RSID: {dataRsid}\n    File-Hash: {filehash}\n    Page-Amount: {pageAmount}\n")
-    except:
-        if dataRsidGot == False:
-            print("Couldn't Get Data-RSID, Most Likely It's Still Valid.")
-        
-        elif pageAmountgot and filehashGot == False:
-            print("\nCouldn't Get HTML Successfully, Solutions: Connect To A VPN To Change Your IP And Retry.\nOr Update Your HTTP Proxies and User-Agents.")
-            input("\nPress Enter To Exit.")
-            exit()
-
-
-    print("\nGetting Possible Preview Links...\n")
-
+    print(f"{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Getting Possible Preview Links...\n")
+    print(f"{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] File's Info")
+    print(f"    {Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Data-RSID: {dataRSID}\n    {Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Page-Amount: {pageAmount}\n    {Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Path: {endLink}")
+    #generating possible links
     generatedPageList = []
     validLinks = 0
     page = 0
-    pageUrlbegin1 = f"https://www.coursehero.com/doc-asset/bg/{filehash}/splits/v9.2/"
-    pageUrlbegin2 = f"https://www.coursehero.com/doc-asset/bg/{filehash}/splits/v9/"
-    #generating possible links
+    pageUrlbegin1 = f"https://www.coursehero.com{endLink}".replace(dataRSID, "v9")
+    pageUrlbegin2 = f"https://www.coursehero.com{endLink}".replace(dataRSID, "v9.2")
 
-    if dataRsidGot == True: #If the given file does have an actual data rsid
-        pageUrlbegin = f"https://www.coursehero.com/doc-asset/bg/{filehash}/splits/{dataRsid}/"
-        page += 1
-        generatedPageList.append(pageUrlbegin + f"split-{page-1}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin1 + f"split-{page-1}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page-1}-page-{page}.jpg")
+    if numberDataRsid == True: #If the given file does have an actual data rsid
+        pageUrlbegin = f"https://www.coursehero.com{endLink}"
+        pageUrlbegin3 = f"https://www.coursehero.com{endLink}".replace(dataRSID, str(int(dataRSID)-1))
+        pageUrlbegin4 = f"https://www.coursehero.com{endLink}".replace(dataRSID, str(int(dataRSID)+1))
 
-        generatedPageList.append(pageUrlbegin1 + f"split-{page-1}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page-1}-page-{page}.jpg")
-
-        generatedPageList.append(pageUrlbegin + f"split-{page+0}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin1 + f"split-{page+0}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page+0}-page-{page}.jpg")
-
-        generatedPageList.append(pageUrlbegin + f"split-{page+1}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin1 + f"split-{page+1}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page+1}-page-{page}.jpg")
-
-        generatedPageList.append(pageUrlbegin + f"split-{page+2}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin1 + f"split-{page+2}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page+2}-page-{page}.jpg")
-
-        page += 1
-        generatedPageList.append(pageUrlbegin + f"split-{page-1}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin1 + f"split-{page-1}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page-1}-page-{page}.jpg")
-        
-        generatedPageList.append(pageUrlbegin + f"split-{page-2}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin1 + f"split-{page-2}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page-2}-page-{page}.jpg")
-
-        generatedPageList.append(pageUrlbegin + f"split-{page+0}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin1 + f"split-{page+0}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page+0}-page-{page}.jpg")
-
-        generatedPageList.append(pageUrlbegin + f"split-{page+1}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin1 + f"split-{page+1}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page+1}-page-{page}.jpg")
-
-        generatedPageList.append(pageUrlbegin + f"split-{page+2}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin1 + f"split-{page+2}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page+2}-page-{page}.jpg")
         while int(page) < int(pageAmount):
             page += 1
             generatedPageList.append(pageUrlbegin + f"split-{page-1}-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin1 + f"split-{page-1}-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin2 + f"split-{page-1}-page-{page}.jpg")
-
+            generatedPageList.append(pageUrlbegin3 + f"split-{page-1}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin4 + f"split-{page-1}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-0-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-1-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-2-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin + f"split-{page-2}-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin1 + f"split-{page-2}-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin2 + f"split-{page-2}-page-{page}.jpg")
-
+            generatedPageList.append(pageUrlbegin3 + f"split-{page-2}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin4 + f"split-{page-2}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-0-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-1-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-2-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin + f"split-{page-3}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin1 + f"split-{page-3}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-{page-3}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin3 + f"split-{page-3}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin4 + f"split-{page-3}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-0-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-1-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-2-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin + f"split-{page+0}-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin1 + f"split-{page+0}-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin2 + f"split-{page+0}-page-{page}.jpg")
-
+            generatedPageList.append(pageUrlbegin3 + f"split-{page+0}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin4 + f"split-{page+0}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-0-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-1-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-2-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin + f"split-{page+1}-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin1 + f"split-{page+1}-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin2 + f"split-{page+1}-page-{page}.jpg")
-
+            generatedPageList.append(pageUrlbegin3 + f"split-{page+1}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin4 + f"split-{page+1}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-0-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-1-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-2-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin + f"split-{page+2}-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin1 + f"split-{page+2}-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin2 + f"split-{page+2}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin3 + f"split-{page+2}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin4 + f"split-{page+2}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-0-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-1-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-2-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin + f"split-{page+3}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin1 + f"split-{page+3}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-{page+3}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin3 + f"split-{page+3}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin4 + f"split-{page+3}-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-0-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-1-page-{page}.jpg")
+            generatedPageList.append(pageUrlbegin2 + f"split-2-page-{page}.jpg")
 
-    elif dataRsidGot == False: #If the given file doesn't have an actual Data-RSID...
-        page += 1
-        generatedPageList.append(pageUrlbegin1 + f"split-{page-1}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page-1}-page-{page}.jpg")
-
-        generatedPageList.append(pageUrlbegin1 + f"split-{page-1}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page-1}-page-{page}.jpg")
-
-        generatedPageList.append(pageUrlbegin1 + f"split-{page+0}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page+0}-page-{page}.jpg")
-
-        generatedPageList.append(pageUrlbegin1 + f"split-{page+1}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page+1}-page-{page}.jpg")
-
-        generatedPageList.append(pageUrlbegin1 + f"split-{page+2}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page+2}-page-{page}.jpg")
-
-        page += 1
-        generatedPageList.append(pageUrlbegin1 + f"split-{page-1}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page-1}-page-{page}.jpg")
-        
-        generatedPageList.append(pageUrlbegin1 + f"split-{page-2}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page-2}-page-{page}.jpg")
-
-        generatedPageList.append(pageUrlbegin1 + f"split-{page+0}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page+0}-page-{page}.jpg")
-
-        generatedPageList.append(pageUrlbegin1 + f"split-{page+1}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page+1}-page-{page}.jpg")
-
-        generatedPageList.append(pageUrlbegin1 + f"split-{page+2}-page-{page}.jpg")
-        generatedPageList.append(pageUrlbegin2 + f"split-{page+2}-page-{page}.jpg")
-        #generating possible extra previews
+    elif numberDataRsid == False: #If the given file doesn't have an actual Data-RSID...
         while int(page) < int(pageAmount):
             page += 1
             generatedPageList.append(pageUrlbegin1 + f"split-{page-1}-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin2 + f"split-{page-1}-page-{page}.jpg")
-
             generatedPageList.append(pageUrlbegin1 + f"split-{page-2}-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin2 + f"split-{page-2}-page-{page}.jpg")
-
             generatedPageList.append(pageUrlbegin1 + f"split-{page+0}-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin2 + f"split-{page+0}-page-{page}.jpg")
-
             generatedPageList.append(pageUrlbegin1 + f"split-{page+1}-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin2 + f"split-{page+1}-page-{page}.jpg")
-
             generatedPageList.append(pageUrlbegin1 + f"split-{page+2}-page-{page}.jpg")
             generatedPageList.append(pageUrlbegin2 + f"split-{page+2}-page-{page}.jpg")
 
+    print(f"\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Generated {len(generatedPageList)} Possible Links.\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Testing Generated Links...")
+    print(f"{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] This Will Take About {(len(generatedPageList)*10)/60} Minutes Since I Don't Want You Getting IP Blacklisted (You Can Change It In The Code On Line #187).")
+    pagesTried = 0
 
-    print(f"Generated {len(generatedPageList)} Possible Links, And {page} Pages\nTesting {len(generatedPageList)} Links...\n\nNote: This Can Take A Long Time If It Has Lots Of Pages.\n")
-    #checking if the generated possible previews are valid or not
     for examineURL in generatedPageList:
-        try:
-            header = {"User-Agent": f'{str(random.choices(headersList))}'}
-            proxy = {"http": str(random.choice(proxiesList))}
-            requestStatus = requests.get(examineURL, headers=header, proxies=proxy)
-        except:
-            header = {"User-Agent": f'{str(random.choices(headersList))}'}
-            proxy = {"http": str(random.choice(proxiesList))}
-            requestStatus = requests.get(examineURL, headers=header)
+        pagesTried += 1
+        driver.execute_script(f'window.location = "{examineURL}"')
+        pageStatus = driver.title
 
-        if requestStatus.ok:
-            print(f"\nValid Preview: {examineURL} ({validLinks}/{len(generatedPageList)})")
+        if "Page missing!" not in pageStatus:
             validLinks += 1
-        else:
-            print(f"\nInvalid Link. ({examineURL})")
-    
-    #prints it out
-    print(f"\n\nGenerated {len(generatedPageList)} Links, Only {validLinks} Were Valid\n")
+            print(f"\n{Fore.WHITE}[{Fore.LIGHTGREEN_EX}>{Fore.WHITE}] Valid Preview: {examineURL} ({pagesTried}/{len(generatedPageList)})")
+        time.sleep(10)
+
+
+    print(f"\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Generated {len(generatedPageList)} Possible Links, But Only {validLinks} Links Were Valid\n")
+    print(f"{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Refreshing In 5 Second, Scroll Back Up For The Valid Links")
+    time.sleep(5)
+    print(os.get_terminal_size().lines*"\n")
 
 while True:
-    print("_________________________________________________________________________________________")
-    print("""
-    ╔════════════════════════════════════════════════════════════╗
-    ║       Made By Dreamer#5114                                 ║
-    ║       Credits: https://www.youtube.com/watch?v=47PUtH4ZhIc ║
-    ║       Since It Helped Me Making This                       ║
-    ║       Github: https://github.com/OriginalAlien             ║
-    ║       Enjoy!                                               ║
-    ╚════════════════════════════════════════════════════════════╝
+    bigText = f"""
+
+
+
+{" "*round(os.get_terminal_size().columns/2-60)} ██████╗ ██████╗ ██╗   ██╗██████╗ ███████╗███████╗    ██╗  ██╗███████╗██████╗  ██████╗     ████████╗ ██████╗  ██████╗ ██╗     
+{" "*round(os.get_terminal_size().columns/2-60)}██╔════╝██╔═══██╗██║   ██║██╔══██╗██╔════╝██╔════╝    ██║  ██║██╔════╝██╔══██╗██╔═══██╗    ╚══██╔══╝██╔═══██╗██╔═══██╗██║     
+{" "*round(os.get_terminal_size().columns/2-60)}██║     ██║   ██║██║   ██║██████╔╝███████╗█████╗      ███████║█████╗  ██████╔╝██║   ██║       ██║   ██║   ██║██║   ██║██║     
+{" "*round(os.get_terminal_size().columns/2-60)}██║     ██║   ██║██║   ██║██╔══██╗╚════██║██╔══╝      ██╔══██║██╔══╝  ██╔══██╗██║   ██║       ██║   ██║   ██║██║   ██║██║     
+{" "*round(os.get_terminal_size().columns/2-60)}╚██████╗╚██████╔╝╚██████╔╝██║  ██║███████║███████╗    ██║  ██║███████╗██║  ██║╚██████╔╝       ██║   ╚██████╔╝╚██████╔╝███████╗
+{" "*round(os.get_terminal_size().columns/2-60)} ╚═════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝    ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝ ╚═════╝        ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝
+""".replace('█', f'{Fore.WHITE}█{Fore.BLUE}')
+
+    print(bigText)
+
+    print(f"""{Fore.WHITE}
+{" "*round(os.get_terminal_size().columns/2-31)}╔════════════════════════════════════════════════════════════╗
+{" "*round(os.get_terminal_size().columns/2-31)}║       {Fore.LIGHTBLUE_EX}Discord: {Fore.WHITE}Dreamer#5114                                {Fore.WHITE}║
+{" "*round(os.get_terminal_size().columns/2-31)}║       {Fore.LIGHTBLUE_EX}Github : {Fore.WHITE}https://github.com/OriginalAlien            {Fore.WHITE}║
+{" "*round(os.get_terminal_size().columns/2-31)}║       {Fore.LIGHTBLUE_EX}Credits: {Fore.WHITE}https://www.youtube.com/watch?v=47PUtH4ZhIc {Fore.WHITE}║
+{" "*round(os.get_terminal_size().columns/2-31)}╚════════════════════════════════════════════════════════════╝
 """)
-    print(f"---About---")
-    print("\nThis Tool Gets All Available Previews For Coursehero.\n\nRecommended: Use VPN, Update HTTP Proxies, Update User Agents.\n\nFREE USER-AGENTS: https://developers.whatismybrowser.com/useragents/explore/\nFREE HTTP PROXY: https://proxyscrape.com/free-proxy-list")
-    print("---Input---")
-    URL_input = input("\n[>>>] URL: ")
+
+    print(f"{' '*round(os.get_terminal_size().columns/2-32)}{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] This Tool Gets Available Hidden Previews For Coursehero. {Fore.WHITE}[{Fore.CYAN}<{Fore.WHITE}]")
+    print(f"{' '*round(os.get_terminal_size().columns/2-28)}{Fore.WHITE}[{Fore.YELLOW}>{Fore.WHITE}] Recommended: USE A VPN TO NOT GET IP BLACKLISTED {Fore.WHITE}[{Fore.YELLOW}<{Fore.WHITE}]")
+    URL_input = input(f"\n\n{Fore.WHITE}[{Fore.CYAN}>>>{Fore.WHITE}] Coursehero File URL: ")
 
     if "coursehero.com/file" not in URL_input.lower(): #makes sure you actually put a valid url
         while "coursehero.com/file" not in URL_input.lower():
-            print("[>] Enter An Actual Coursehero  Link...")
-            URL_input = input("\n[>>>] URL: ")
+            print(f"{Fore.WHITE}[{Fore.LIGHTRED_EX}>{Fore.WHITE}] Enter An Actual Coursehero Link")
+            URL_input = input(f"\n{Fore.WHITE}[{Fore.CYAN}>>>{Fore.WHITE}] Coursehero File URL: ")
             if "coursehero.com/file" in URL_input.lower():
-                getPages(URL_input)
+                print(f"\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Opening Chrome Driver...\n")
+                getPreviews(URL_input)
                 break
 
     elif "coursehero.com/file" in URL_input.lower(): #gig
-        getPages(URL_input)
+        getPreviews(URL_input)
