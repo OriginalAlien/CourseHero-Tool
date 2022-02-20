@@ -10,19 +10,19 @@ def getPreviews(url):
     option.add_experimental_option('excludeSwitches', ['enable-logging'])
 
     try:
-        driver = webdriver.Chrome("Path Here, Example: C:\\Users\\USER\\OneDrive\\Desktop\\chromedriver\\chromedriver.exe", options=option) #Put chromedriver.exe file loction between quotation marks using double back slashes.
+        driver = webdriver.Chrome("PATH HERE, EXAMPLE: C:\\Users\\USER\\OneDrive\\Desktop\\chromedriver\\chromedriver.exe", options=option) #Put chromedriver.exe file loction between quotation marks using double back slashes.
     except Exception as DriverError:
-        print(f"\n{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}Invalid File Location For Chrome Driver Or File Location Hasn't Been Set Yet. Remember To Use Double Slashes. Make Sure Chrome Driver Is Same Version As Chrome\n    Line: 11\n    Stopped Program.\n")
+        print(f"\n{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}Invalid File Location For Chrome Driver Or File Location Hasn't Been Set Yet. Remember To Use Double Slashes. Make Sure Chrome Driver Is Same Version As Chrome\n    Line: 13\n    Stopped Program.\n")
         print(f"{Fore.RED}{DriverError}{Fore.RESET}\n")
-        input(f"\n{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}Press Enter To Exit")
+        input(f"{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}Press Enter To Exit")
         exit()
 
     print(f"\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Getting Link's HTML...")
     try:
         driver.get(url)
     except:
-        print(f"{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] Invalid Course Hero URL.")
-        input("Press Enter To Exit...")
+        print(f"{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] Invalid Course Hero URL Or Network Issues Or You're Temporarily Blacklisted (If So, Connect To A New IP With A VPN Or Try Again In A Few Minutes).")
+        input(f"{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}Press Enter To Exit...")
         exit()
     time.sleep(4)
     html = driver.page_source
@@ -38,7 +38,7 @@ def getPreviews(url):
                     print(f"\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Successfully Got The HTML!")
                     break
                 else:
-                    print(f"\n{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] Failed To Get The Page's HTML, Try Solving It Again.\n")
+                    print(f"\n{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] Failed To Get The Page's HTML, Try Solving It Again.\n{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] (If Not, Get A New IP With A VPN And Retry Or Try Again In A Few Minutes. You Most Likely Are Blacklisted Temporarily Due To Using This Too Much).\n")
 
     Link1 = html.find('url(/doc-asset/bg')
     Link2 = Link1
@@ -73,7 +73,7 @@ def getPreviews(url):
     #get pageAmount
     if "<label>Pages</label>" in html:
         pageAmountIndex1 = html.find("<label>Pages</label>")
-        pageAmountIndex2 = pageAmountIndex1 + 25 #38
+        pageAmountIndex2 = pageAmountIndex1 + 25
         while 1 == 1:
             pageAmountIndex2 += 1
             if html[pageAmountIndex2] == "<":
@@ -84,9 +84,9 @@ def getPreviews(url):
         pageAmountgot = False
         print(f"{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Couldn't Successfully Get Page's Page Amount.\n")
 
-    print(f"{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Getting Possible Preview Links...\n")
     print(f"{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] File's Info")
     print(f"    {Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Data-RSID: {dataRSID}\n    {Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Page-Amount: {pageAmount}\n    {Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Path: {endLink}")
+    print(f"\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Generating Possible Preview Links...\n")
     #generating possible links
     generatedPageList = []
     validLinks = 0
@@ -173,18 +173,25 @@ def getPreviews(url):
             generatedPageList.append(pageUrlbegin2 + f"split-{page+2}-page-{page}.jpg")
 
     print(f"\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Generated {len(generatedPageList)} Possible Links.\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Testing Generated Links...")
-    print(f"{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] This Will Take About {(len(generatedPageList)*10)/60} Minutes Since I Don't Want You Getting IP Blacklisted (You Can Change It In The Code On Line #187).")
+    print(f"{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] This Will Take About {round((len(generatedPageList)*5)/60)} Minutes Since I Don't Want You Getting Blacklisted (You Can Change It In The Code On Line #194).")
     pagesTried = 0
 
     for examineURL in generatedPageList:
         pagesTried += 1
-        driver.execute_script(f'window.location = "{examineURL}"')
+
+        try:
+            driver.get(examineURL)
+        except:
+            print(f"\n{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] Either Network Issues Or Your Probably Temporarily Blacklisted, Try Connecting To A New IP With A VPN Or Try Again In A Few Minutes.")
+            input(f"{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}Press Enter To Exit...")
+            exit()
+
         pageStatus = driver.title
 
         if "Page missing!" not in pageStatus:
             validLinks += 1
             print(f"\n{Fore.WHITE}[{Fore.LIGHTGREEN_EX}>{Fore.WHITE}] Valid Preview: {examineURL} ({pagesTried}/{len(generatedPageList)})")
-        time.sleep(10)
+        time.sleep(5)
 
 
     print(f"\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Generated {len(generatedPageList)} Possible Links, But Only {validLinks} Links Were Valid\n")
