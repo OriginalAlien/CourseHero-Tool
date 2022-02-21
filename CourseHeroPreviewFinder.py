@@ -12,7 +12,7 @@ def getPreviews(url):
     try:
         driver = webdriver.Chrome("PATH HERE, EXAMPLE: C:\\Users\\USER\\OneDrive\\Desktop\\chromedriver\\chromedriver.exe", options=option) #Put chromedriver.exe file loction between quotation marks using double back slashes.
     except Exception as DriverError:
-        print(f"\n{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}Invalid File Location For Chrome Driver Or File Location Hasn't Been Set Yet. Remember To Use Double Slashes. Make Sure Chrome Driver Is Same Version As Chrome\n    Line: 14\n    Stopped Program.\n")
+        print(f"\n{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}Invalid File Location For Chrome Driver Or File Location Hasn't Been Set Yet. Remember To Use Double Slashes. Make Sure Chrome Driver Is Same Version As Chrome\n    Line: 13\n    Stopped Program.\n")
         print(f"{Fore.RED}{DriverError}{Fore.RESET}\n")
         input(f"{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}Press Enter To Exit")
         exit()
@@ -173,7 +173,7 @@ def getPreviews(url):
             generatedPageList.append(pageUrlbegin2 + f"split-{page+2}-page-{page}.jpg")
 
     print(f"\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Generated {len(generatedPageList)} Possible Links.\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Testing Generated Links...")
-    print(f"{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] This Will Take About {round((len(generatedPageList)*5)/60)} Minutes Since I Don't Want You Getting Blacklisted (You Can Change It In The Code On Line #189).")
+    print(f"{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] This Will Take About {round((len(generatedPageList)*5)/60)} Minutes Since I Don't Want You Getting Blacklisted (You Can Change It In The Code On Line #188).")
     pagesTried = 0
 
     for examineURL in generatedPageList:
