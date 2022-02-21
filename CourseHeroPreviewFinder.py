@@ -1,4 +1,3 @@
-from logging import exception
 from selenium import webdriver
 from colorama import Fore, init
 import time, os
