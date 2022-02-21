@@ -1,6 +1,6 @@
 # CourseHero-Tool (UPDATED)
 A Program That Finds All Possible Course Hero Available Previews.\
-Update: Uses Chrome Driver Now Instead Of Requests Since Requests Isn't Good With It.
+Update: Pauses When Program Catches An Error So That It Doesn't Lose Given Valid Links.
 __________________________
 
 For the course hero preview finder, make sure you have chrome driver version installed as your current chrome version and set the file path in python code.
