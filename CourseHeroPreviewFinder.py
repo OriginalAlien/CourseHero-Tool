@@ -1,3 +1,4 @@
+from logging import exception
 from selenium import webdriver
 from colorama import Fore, init
 import time, os
@@ -12,7 +13,7 @@ def getPreviews(url):
     try:
         driver = webdriver.Chrome("PATH HERE, EXAMPLE: C:\\Users\\USER\\OneDrive\\Desktop\\chromedriver\\chromedriver.exe", options=option) #Put chromedriver.exe file loction between quotation marks using double back slashes.
     except Exception as DriverError:
-        print(f"\n{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}Invalid File Location For Chrome Driver Or File Location Hasn't Been Set Yet. Remember To Use Double Slashes. Make Sure Chrome Driver Is Same Version As Chrome\n    Line: 13\n    Stopped Program.\n")
+        print(f"\n{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}Invalid File Location For Chrome Driver Or File Location Hasn't Been Set Yet. Remember To Use Double Slashes. Make Sure Chrome Driver Is Same Version As Chrome\n    Line: 14\n    Stopped Program.\n")
         print(f"{Fore.RED}{DriverError}{Fore.RESET}\n")
         input(f"{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}Press Enter To Exit")
         exit()
@@ -173,26 +174,24 @@ def getPreviews(url):
             generatedPageList.append(pageUrlbegin2 + f"split-{page+2}-page-{page}.jpg")
 
     print(f"\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Generated {len(generatedPageList)} Possible Links.\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Testing Generated Links...")
-    print(f"{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] This Will Take About {round((len(generatedPageList)*5)/60)} Minutes Since I Don't Want You Getting Blacklisted (You Can Change It In The Code On Line #194).")
+    print(f"{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] This Will Take About {round((len(generatedPageList)*5)/60)} Minutes Since I Don't Want You Getting Blacklisted (You Can Change It In The Code On Line #189).")
     pagesTried = 0
 
     for examineURL in generatedPageList:
         pagesTried += 1
-
         try:
             driver.get(examineURL)
+            pageStatus = driver.title
+
+            if "Page missing!" not in pageStatus:
+                validLinks += 1
+                print(f"\n{Fore.WHITE}[{Fore.LIGHTGREEN_EX}>{Fore.WHITE}] Valid Preview: {examineURL} ({pagesTried}/{len(generatedPageList)})")
+            time.sleep(5)
+
         except:
-            print(f"\n{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] Either Network Issues Or Your Probably Temporarily Blacklisted, Try Connecting To A New IP With A VPN Or Try Again In A Few Minutes.")
-            input(f"{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}Press Enter To Exit...")
-            exit()
-
-        pageStatus = driver.title
-
-        if "Page missing!" not in pageStatus:
-            validLinks += 1
-            print(f"\n{Fore.WHITE}[{Fore.LIGHTGREEN_EX}>{Fore.WHITE}] Valid Preview: {examineURL} ({pagesTried}/{len(generatedPageList)})")
-        time.sleep(5)
-
+            print(f"\n{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}You Stopped The Program Or Network Issues Or Your Probably Temporarily Blacklisted, Try Connecting To A New IP With A VPN Or Try Again In A Few Minutes. (Checked {pagesTried} Links And Only {validLinks} Links Were Valid.)\n")
+            input(f"{Fore.WHITE}[{Fore.RED}>{Fore.WHITE}] {Fore.LIGHTRED_EX}Program Stopped...")
+            time.sleep(99999)
 
     print(f"\n{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Generated {len(generatedPageList)} Possible Links, But Only {validLinks} Links Were Valid\n")
     print(f"{Fore.WHITE}[{Fore.CYAN}>{Fore.WHITE}] Refreshing In 5 Second, Scroll Back Up For The Valid Links")
@@ -201,9 +200,6 @@ def getPreviews(url):
 
 while True:
     bigText = f"""
-
-
-
 {" "*round(os.get_terminal_size().columns/2-60)} ██████╗ ██████╗ ██╗   ██╗██████╗ ███████╗███████╗    ██╗  ██╗███████╗██████╗  ██████╗     ████████╗ ██████╗  ██████╗ ██╗     
 {" "*round(os.get_terminal_size().columns/2-60)}██╔════╝██╔═══██╗██║   ██║██╔══██╗██╔════╝██╔════╝    ██║  ██║██╔════╝██╔══██╗██╔═══██╗    ╚══██╔══╝██╔═══██╗██╔═══██╗██║     
 {" "*round(os.get_terminal_size().columns/2-60)}██║     ██║   ██║██║   ██║██████╔╝███████╗█████╗      ███████║█████╗  ██████╔╝██║   ██║       ██║   ██║   ██║██║   ██║██║     
